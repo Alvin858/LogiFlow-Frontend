@@ -1,0 +1,22 @@
+<div class="auth-page">
+  <mat-card class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="muted">Sign in to your LogiFlow account.</p>
+    @if (error) { <p class="error">{{ error }}</p> }
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label><input matInput type="email" formControlName="email">
+        @if (form.controls.email.hasError('required')) { <mat-error>Email is required</mat-error> }
+        @if (form.controls.email.hasError('email')) { <mat-error>Enter a valid email</mat-error> }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label><input matInput type="password" formControlName="password">
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
+    </form>
+    <div class="links">
+      <a routerLink="/auth/register">Create account</a>
+      <a routerLink="/auth/forgot-password">Forgot password?</a>
+    </div>
+  </mat-card>
+</div>

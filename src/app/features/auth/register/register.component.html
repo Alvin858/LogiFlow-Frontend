@@ -1,0 +1,18 @@
+<div class="auth-page">
+  <mat-card class="auth-card">
+    <h1>Create customer account</h1><p class="muted">Registration creates a Customer account in the Member 1 backend.</p>
+    @if (error) { <p class="error">{{ error }}</p> }
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="two">
+        <mat-form-field appearance="outline"><mat-label>First name</mat-label><input matInput formControlName="firstName"></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Last name</mat-label><input matInput formControlName="lastName"></mat-form-field>
+      </div>
+      <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="email"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Password</mat-label><input matInput type="password" formControlName="password"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Phone number</mat-label><input matInput formControlName="phoneNumber"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Company name (optional)</mat-label><input matInput formControlName="companyName"></mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading">{{loading?'Creating...':'Create account'}}</button>
+    </form>
+    <p class="back"><a routerLink="/auth/login">Already have an account? Sign in</a></p>
+  </mat-card>
+</div>

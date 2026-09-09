@@ -1,0 +1,10 @@
+<div class="page"><mat-card class="card form-card"><h1>{{editing?'Edit':'Add'}} driver</h1><p class="muted">{{editing?'Update the driver profile and availability.':'Create a Driver user and driver profile.'}}</p>@if(error){<p class="error">{{error}}</p>}
+<form [formGroup]="form" (ngSubmit)="submit()"><div class="form-grid"><mat-form-field appearance="outline"><mat-label>First name</mat-label><input matInput formControlName="firstName"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Last name</mat-label><input matInput formControlName="lastName"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="email"></mat-form-field>
+@if(!editing){<mat-form-field appearance="outline"><mat-label>Password</mat-label><input matInput type="password" formControlName="password"></mat-form-field>}
+<mat-form-field appearance="outline"><mat-label>Phone number</mat-label><input matInput formControlName="phoneNumber"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>License number</mat-label><input matInput formControlName="licenseNumber"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>License expiry</mat-label><input matInput type="date" formControlName="licenseExpiryDate"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Experience (years)</mat-label><input matInput type="number" formControlName="experienceYears"></mat-form-field></div>
+<mat-checkbox formControlName="isAvailable">Available for assignment</mat-checkbox><div class="actions"><button mat-flat-button color="primary" [disabled]="loading">{{loading?'Saving...':'Save driver'}}</button><a mat-button routerLink="/admin/drivers">Cancel</a></div></form></mat-card></div>

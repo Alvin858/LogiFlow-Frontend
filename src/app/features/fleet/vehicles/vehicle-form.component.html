@@ -1,0 +1,8 @@
+<div class="page"><mat-card class="card form-card"><h1>{{editing?'Edit':'Add'}} vehicle</h1>@if(error){<p class="error">{{error}}</p>}
+<form [formGroup]="form" (ngSubmit)="submit()"><div class="form-grid"><mat-form-field appearance="outline"><mat-label>Vehicle type</mat-label><input matInput formControlName="vehicleType"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Registration number</mat-label><input matInput formControlName="registrationNumber"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Capacity (kg)</mat-label><input matInput type="number" formControlName="capacityKg"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Status</mat-label><mat-select formControlName="status">@for(s of statuses;track s){<mat-option [value]="s">{{statusName(s)}}</mat-option>}</mat-select></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Insurance expiry</mat-label><input matInput type="date" formControlName="insuranceExpiryDate"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Fitness expiry</mat-label><input matInput type="date" formControlName="fitnessExpiryDate"></mat-form-field></div>
+<div class="actions"><button mat-flat-button color="primary" [disabled]="loading">{{loading?'Saving...':'Save vehicle'}}</button><a mat-button routerLink="/admin/vehicles">Cancel</a></div></form></mat-card></div>

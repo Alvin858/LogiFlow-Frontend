@@ -1,0 +1,4 @@
+.auth-page { min-height:100vh; display:grid; place-items:center; padding:20px; }
+.auth-card { width:min(440px,100%); padding:28px; }
+form { display:grid; gap:14px; margin-top:18px; }
+.links { display:flex; justify-content:space-between; margin-top:20px; }

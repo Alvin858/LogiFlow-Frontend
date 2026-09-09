@@ -1,0 +1,11 @@
+<div class="page"><div class="page-header"><div><h1>Drivers</h1><p class="muted">Member 1 driver operations.</p></div><a mat-flat-button color="primary" routerLink="/admin/drivers/add">Add driver</a></div>
+@if(error){<p class="error">{{error}}</p>} @if(!drivers.length&&!error){<div class="card empty">No drivers found.</div>}
+<mat-card class="card table-card"><table mat-table [dataSource]="drivers">
+<ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let d">{{d.firstName}} {{d.lastName}} @if(!d.isActive){<small>(inactive)</small>}</td></ng-container>
+<ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef>Email</th><td mat-cell *matCellDef="let d">{{d.email}}</td></ng-container>
+<ng-container matColumnDef="license"><th mat-header-cell *matHeaderCellDef>License</th><td mat-cell *matCellDef="let d">{{d.licenseNumber}}</td></ng-container>
+<ng-container matColumnDef="expiry"><th mat-header-cell *matHeaderCellDef>Expiry</th><td mat-cell *matCellDef="let d">{{d.licenseExpiryDate | date}}</td></ng-container>
+<ng-container matColumnDef="experience"><th mat-header-cell *matHeaderCellDef>Experience</th><td mat-cell *matCellDef="let d">{{d.experienceYears}} yrs</td></ng-container>
+<ng-container matColumnDef="availability"><th mat-header-cell *matHeaderCellDef>Available</th><td mat-cell *matCellDef="let d"><mat-slide-toggle [checked]="d.isAvailable" [disabled]="!d.isActive" (change)="availability(d,$event.checked)"></mat-slide-toggle></td></ng-container>
+<ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let d"><a mat-button [routerLink]="['/admin/drivers',d.id]">View</a><a mat-button [routerLink]="['/admin/drivers/edit',d.id]">Edit</a><button mat-button color="warn" (click)="delete(d.id)">Deactivate</button></td></ng-container>
+<tr mat-header-row *matHeaderRowDef="columns"></tr><tr mat-row *matRowDef="let row;columns:columns"></tr></table></mat-card></div>

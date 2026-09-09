@@ -1,0 +1,9 @@
+<div class="page"><div class="page-header"><div><h1>Customer dashboard</h1><p class="muted">Manage your Member 1 customer profile and addresses.</p></div><a mat-flat-button color="primary" routerLink="/customer/profile/edit">Edit profile</a></div>
+@if(error){<div class="card pad error">{{error}}</div>}
+@if(customer){<div class="grid grid-3">
+<mat-card><mat-icon>business</mat-icon><h3>Company</h3><strong>{{customer.companyName}}</strong><p>{{customer.contactPerson}}</p></mat-card>
+<mat-card><mat-icon>mail</mat-icon><h3>Contact</h3><strong>{{customer.email}}</strong><p>{{customer.phoneNumber || 'No phone number'}}</p></mat-card>
+<mat-card><mat-icon>location_on</mat-icon><h3>Addresses</h3><strong>{{customer.addresses.length}}</strong><p>Saved pickup/delivery addresses</p></mat-card>
+</div>
+<mat-card class="section"><h2>Quick actions</h2><div class="actions"><a mat-stroked-button routerLink="/customer/profile">View profile</a><a mat-stroked-button routerLink="/customer/addresses">Manage addresses</a><a mat-stroked-button routerLink="/customer/addresses/add">Add address</a></div></mat-card>}
+</div>

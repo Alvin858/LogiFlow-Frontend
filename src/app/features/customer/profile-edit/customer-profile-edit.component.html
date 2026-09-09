@@ -1,0 +1,6 @@
+<div class="page"><mat-card class="card form-card"><h1>Edit customer profile</h1>@if(error){<p class="error">{{error}}</p>}
+<form [formGroup]="form" (ngSubmit)="submit()"><mat-form-field appearance="outline"><mat-label>Company name</mat-label><input matInput formControlName="companyName"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Contact person</mat-label><input matInput formControlName="contactPerson"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Tax number</mat-label><input matInput formControlName="taxNumber"></mat-form-field>
+<mat-form-field appearance="outline"><mat-label>Phone number</mat-label><input matInput formControlName="phoneNumber"></mat-form-field>
+<div class="actions"><button mat-flat-button color="primary" [disabled]="loading">{{loading?'Saving...':'Save changes'}}</button><a mat-button routerLink="/customer/profile">Cancel</a></div></form></mat-card></div>
