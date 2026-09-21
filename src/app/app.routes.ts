@@ -19,6 +19,23 @@ import { VehicleDetailComponent } from './features/fleet/vehicles/vehicle-detail
 import { DriverListComponent } from './features/fleet/drivers/driver-list.component';
 import { DriverFormComponent } from './features/fleet/drivers/driver-form.component';
 import { DriverDetailComponent } from './features/fleet/drivers/driver-detail.component';
+import { RouteListComponent } from './features/routes/routes-list/routes-list';
+import { RouteCreateComponent } from './features/routes/route-create/route-create';
+import { RouteDetailComponent } from './features/routes/route-detail/route-detail';
+import { RouteEditComponent } from './features/routes/route-edit/route-edit';
+import { RoutePlannerComponent } from './features/routes/route-planner/route-planner';
+import { DeliveryListComponent } from './features/deliveries/delivery-list/delivery-list';
+import { DeliveryCreateComponent } from './features/deliveries/delivery-create/delivery-create';
+import { DeliveryEditComponent } from './features/deliveries/delivery-edit/delivery-edit';
+import { DeliveryDetailComponent } from './features/deliveries/delivery-details/delivery-details';
+import { ProofOfDeliveryComponent } from './features/deliveries/proof-of-delivery/proof-of-delivery';
+import { DriverDeliveriesComponent } from './features/deliveries/driver-deliveries/driver-deliveries';
+import { ScheduleListComponent } from './features/schedules/schedule-list/schedule-list';
+import { ScheduleCreateComponent } from './features/schedules/schedule-create/schedule-create';
+import { ScheduleEditComponent } from './features/schedules/schedule-edit/schedule-edit';
+import { ScheduleDetailComponent } from './features/schedules/schedule-details/schedule-details';
+import { ScheduleCalendarComponent } from './features/schedules/schedule-calender/schedule-calender';
+import { DriverScheduleComponent } from './features/schedules/driver-schedule/driver-schedule';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
@@ -47,7 +64,25 @@ export const routes: Routes = [
       { path: 'admin/drivers', component: DriverListComponent, canActivate: [roleGuard(['Admin', 'Logistics Staff'])] },
       { path: 'admin/drivers/add', component: DriverFormComponent, canActivate: [roleGuard(['Admin', 'Logistics Staff'])] },
       { path: 'admin/drivers/edit/:id', component: DriverFormComponent, canActivate: [roleGuard(['Admin', 'Logistics Staff'])] },
-      { path: 'admin/drivers/:id', component: DriverDetailComponent, canActivate: [roleGuard(['Admin', 'Logistics Staff'])] }
+      { path: 'admin/drivers/:id', component: DriverDetailComponent, canActivate: [roleGuard(['Admin', 'Logistics Staff'])] },
+      {path: 'routes',component: RouteListComponent},
+      {path: 'routes/create',component: RouteCreateComponent},   
+      {path: 'routes/:id',component: RouteDetailComponent},
+      {path: 'routes/edit/:id',component: RouteEditComponent},
+      {path: 'routes/:id/planner',component: RoutePlannerComponent},
+      {path: 'deliveries',component: DeliveryListComponent},
+      {path: 'deliveries/create',component: DeliveryCreateComponent},
+      {path: 'deliveries/edit/:id',component: DeliveryEditComponent},
+      {path: 'deliveries/:id/proof-of-delivery',component: ProofOfDeliveryComponent},
+      {path: 'deliveries/:id',component: DeliveryDetailComponent},
+      {path: 'driver-deliveries',component: DriverDeliveriesComponent},
+      {path: 'driver-deliveries/:driverId',component: DriverDeliveriesComponent},
+      {path: 'schedules',component: ScheduleListComponent},
+      {path: 'schedules/create',component: ScheduleCreateComponent},
+      {path: 'schedules/edit/:id',component: ScheduleEditComponent},
+      {path: 'schedules/calendar',component: ScheduleCalendarComponent},
+      {path: 'schedules/driver/:driverId',component: DriverScheduleComponent},
+      {path: 'schedules/:id',component: ScheduleDetailComponent},
     ]
   },
   { path: '**', redirectTo: 'auth/login' }

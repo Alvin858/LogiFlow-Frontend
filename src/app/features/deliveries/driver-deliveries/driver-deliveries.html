@@ -1,0 +1,418 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Driver Deliveries</h1>
+
+      <p *ngIf="driverId">
+        Deliveries assigned to Driver #{{ driverId }}
+      </p>
+
+      <p *ngIf="!driverId">
+        Manage assigned delivery operations.
+      </p>
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="goToAllDeliveries()"
+      >
+        <mat-icon>list</mat-icon>
+        All Deliveries
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="refresh()"
+        [disabled]="loading"
+      >
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Summary -->
+
+  <div class="summary-grid">
+
+    <mat-card class="summary-card">
+      <mat-icon>local_shipping</mat-icon>
+
+      <div>
+        <span>Active</span>
+        <strong>{{ getActiveCount() }}</strong>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <mat-icon>check_circle</mat-icon>
+
+      <div>
+        <span>Completed</span>
+        <strong>{{ getCompletedCount() }}</strong>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <mat-icon>cancel</mat-icon>
+
+      <div>
+        <span>Failed</span>
+        <strong>{{ getFailedCount() }}</strong>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <mat-icon>assignment</mat-icon>
+
+      <div>
+        <span>Total</span>
+        <strong>{{ deliveries.length }}</strong>
+      </div>
+    </mat-card>
+
+  </div>
+
+
+  <!-- Loading -->
+
+  <div
+    class="loading-container"
+    *ngIf="loading"
+  >
+    <mat-spinner diameter="45"></mat-spinner>
+
+    <p>Loading deliveries...</p>
+  </div>
+
+
+  <!-- Error -->
+
+  <mat-card
+    class="error-card"
+    *ngIf="!loading && errorMessage"
+  >
+
+    <mat-icon>error</mat-icon>
+
+    <div>
+      <h3>Unable to load deliveries</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="refresh()"
+    >
+      Retry
+    </button>
+
+  </mat-card>
+
+
+  <!-- Empty -->
+
+  <mat-card
+    class="empty-card"
+    *ngIf="
+      !loading &&
+      !errorMessage &&
+      deliveries.length === 0
+    "
+  >
+
+    <mat-icon>local_shipping</mat-icon>
+
+    <h2>No deliveries found</h2>
+
+    <p>
+      There are currently no deliveries assigned
+      to this driver.
+    </p>
+
+  </mat-card>
+
+
+  <!-- Table -->
+
+  <mat-card
+    class="table-card"
+    *ngIf="
+      !loading &&
+      !errorMessage &&
+      deliveries.length > 0
+    "
+  >
+
+    <div class="table-header">
+
+      <div>
+        <h2>Assigned Deliveries</h2>
+
+        <p>
+          Use the actions to update the delivery workflow.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="table-container">
+
+      <table
+        mat-table
+        [dataSource]="deliveries"
+        class="delivery-table"
+      >
+
+        <!-- ID -->
+
+        <ng-container matColumnDef="id">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            ID
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+            #{{ delivery.id }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Shipment -->
+
+        <ng-container matColumnDef="shipmentId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Shipment
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+            #{{ delivery.shipmentId }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Vehicle -->
+
+        <ng-container matColumnDef="vehicleId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Vehicle
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+            #{{ delivery.vehicleId }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Route -->
+
+        <ng-container matColumnDef="routeId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Route
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+            #{{ delivery.routeId }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Status -->
+
+        <ng-container matColumnDef="status">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Status
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+
+            <span
+              class="status-badge"
+              [ngClass]="
+                getStatusClass(delivery.status)
+              "
+            >
+              {{ getStatusLabel(delivery.status) }}
+            </span>
+
+          </td>
+
+        </ng-container>
+
+
+        <!-- Actions -->
+
+        <ng-container matColumnDef="actions">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Actions
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let delivery"
+          >
+
+            <div class="actions">
+
+              <button
+                mat-icon-button
+                matTooltip="View delivery"
+                type="button"
+                (click)="viewDelivery(delivery)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+
+              <button
+                mat-icon-button
+                color="primary"
+                matTooltip="Confirm pickup"
+                type="button"
+                *ngIf="canConfirmPickup(delivery)"
+                (click)="confirmPickup(delivery)"
+                [disabled]="actionLoading"
+              >
+                <mat-icon>inventory_2</mat-icon>
+              </button>
+
+
+              <button
+                mat-icon-button
+                color="primary"
+                matTooltip="Out for delivery"
+                type="button"
+                *ngIf="
+                  canMarkOutForDelivery(delivery)
+                "
+                (click)="markOutForDelivery(delivery)"
+                [disabled]="actionLoading"
+              >
+                <mat-icon>local_shipping</mat-icon>
+              </button>
+
+
+              <button
+                mat-icon-button
+                color="accent"
+                matTooltip="Proof of delivery"
+                type="button"
+                *ngIf="
+                  canAddProofOfDelivery(delivery)
+                "
+                (click)="
+                  openProofOfDelivery(delivery)
+                "
+                [disabled]="actionLoading"
+              >
+                <mat-icon>fact_check</mat-icon>
+              </button>
+
+
+              <button
+                mat-icon-button
+                color="primary"
+                matTooltip="Complete delivery"
+                type="button"
+                *ngIf="
+                  canCompleteDelivery(delivery)
+                "
+                (click)="completeDelivery(delivery)"
+                [disabled]="actionLoading"
+              >
+                <mat-icon>check_circle</mat-icon>
+              </button>
+
+
+              <button
+                mat-icon-button
+                color="warn"
+                matTooltip="Failed delivery"
+                type="button"
+                *ngIf="canFailDelivery(delivery)"
+                (click)="failDelivery(delivery)"
+                [disabled]="actionLoading"
+              >
+                <mat-icon>cancel</mat-icon>
+              </button>
+
+            </div>
+
+          </td>
+
+        </ng-container>
+
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns"
+        ></tr>
+
+        <tr
+          mat-row
+          *matRowDef="
+            let row;
+            columns: displayedColumns
+          "
+        ></tr>
+
+      </table>
+
+    </div>
+
+  </mat-card>
+
+</div>

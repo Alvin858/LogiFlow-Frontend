@@ -1,9 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  CreateDriverRequest, DriverResponse, UpdateDriverAvailabilityRequest, UpdateDriverRequest
-} from '../models/fleet.models';
+import {CreateDriverRequest, DriverResponse, UpdateDriverAvailabilityRequest, UpdateDriverRequest} from '../models/fleet.models';
 
 @Injectable({ providedIn: 'root' })
 export class DriverService {

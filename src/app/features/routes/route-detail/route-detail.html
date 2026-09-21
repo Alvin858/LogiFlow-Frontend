@@ -1,0 +1,463 @@
+<!--
+  src/app/features/routes/route-detail/route-detail.component.html
+-->
+
+<div class="route-detail-page">
+
+  <!-- ==========================================================
+       HEADER
+       =========================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Route Details
+      </h1>
+
+      @if (route) {
+
+        <p>
+          Route #{{ route.id }}
+        </p>
+
+      }
+
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="backToRoutes()">
+
+      <mat-icon>
+        arrow_back
+      </mat-icon>
+
+      Back to Routes
+
+    </button>
+
+  </div>
+
+
+  <!-- ==========================================================
+       LOADING
+       =========================================================== -->
+
+  @if (loading) {
+
+    <div class="loading-container">
+
+      <mat-spinner
+        diameter="48">
+      </mat-spinner>
+
+      <p>
+        Loading route...
+      </p>
+
+    </div>
+
+  }
+
+
+  <!-- ==========================================================
+       ERROR
+       =========================================================== -->
+
+  @if (
+    !loading &&
+    errorMessage
+  ) {
+
+    <mat-card class="error-card">
+
+      <mat-icon>
+        error_outline
+      </mat-icon>
+
+      <div>
+
+        <h2>
+          Unable to load route
+        </h2>
+
+        <p>
+          {{ errorMessage }}
+        </p>
+
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="backToRoutes()">
+
+          <mat-icon>
+            arrow_back
+          </mat-icon>
+
+          Back to Routes
+
+        </button>
+
+      </div>
+
+    </mat-card>
+
+  }
+
+
+  <!-- ==========================================================
+       ROUTE CONTENT
+       =========================================================== -->
+
+  @if (
+    !loading &&
+    !errorMessage &&
+    route
+  ) {
+
+    <!-- ========================================================
+         ROUTE SUMMARY
+         ========================================================= -->
+
+    <mat-card class="detail-card">
+
+      <mat-card-header>
+
+        <mat-card-title>
+          Route #{{ route.id }}
+        </mat-card-title>
+
+        <mat-card-subtitle>
+          Route information
+        </mat-card-subtitle>
+
+      </mat-card-header>
+
+
+      <mat-card-content>
+
+        <div class="route-summary">
+
+
+          <!-- START -->
+
+          <div class="summary-item">
+
+            <div class="summary-icon">
+
+              <mat-icon>
+                trip_origin
+              </mat-icon>
+
+            </div>
+
+            <div>
+
+              <span class="label">
+                Start Location
+              </span>
+
+              <strong>
+                {{ route.startLocation }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- DESTINATION -->
+
+          <div class="summary-item">
+
+            <div class="summary-icon">
+
+              <mat-icon>
+                location_on
+              </mat-icon>
+
+            </div>
+
+            <div>
+
+              <span class="label">
+                Destination
+              </span>
+
+              <strong>
+                {{ route.destination }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- DISTANCE -->
+
+          <div class="summary-item">
+
+            <div class="summary-icon">
+
+              <mat-icon>
+                straighten
+              </mat-icon>
+
+            </div>
+
+            <div>
+
+              <span class="label">
+                Distance
+              </span>
+
+              <strong>
+                {{ formatDistance(route.distance) }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- DURATION -->
+
+          <div class="summary-item">
+
+            <div class="summary-icon">
+
+              <mat-icon>
+                schedule
+              </mat-icon>
+
+            </div>
+
+            <div>
+
+              <span class="label">
+                Estimated Duration
+              </span>
+
+              <strong>
+                {{ formatDuration(route.estimatedDuration) }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ========================================================
+         STOPS
+         ========================================================= -->
+
+    <mat-card class="detail-card">
+
+      <mat-card-header>
+
+        <mat-card-title>
+          Route Stops
+        </mat-card-title>
+
+        <mat-card-subtitle>
+          {{ route.stops?.length ?? 0 }}
+          stop(s)
+        </mat-card-subtitle>
+
+      </mat-card-header>
+
+
+      <mat-card-content>
+
+        @if (
+          route.stops &&
+          route.stops.length > 0
+        ) {
+
+          <div class="stops-list">
+
+            @for (
+              stop of route.stops;
+              track trackByStop($index, stop);
+              let i = $index
+            ) {
+
+              <div class="stop-item">
+
+
+                <!-- STOP NUMBER -->
+
+                <div class="stop-number">
+
+                  {{ i + 1 }}
+
+                </div>
+
+
+                <!-- CONNECTOR -->
+
+                @if (
+                  i < route.stops.length - 1
+                ) {
+
+                  <div class="stop-line"></div>
+
+                }
+
+
+                <!-- STOP CONTENT -->
+
+                <div class="stop-content">
+
+                  <div class="stop-title">
+
+                    <mat-icon>
+                      location_on
+                    </mat-icon>
+
+                    <strong>
+                      {{ stop.address }}
+                    </strong>
+
+                  </div>
+
+
+                  @if (stop.location) {
+
+                    <p>
+                      {{ stop.location }}
+                    </p>
+
+                  }
+
+
+                  @if (
+                    stop.latitude !== null &&
+                    stop.latitude !== undefined &&
+                    stop.longitude !== null &&
+                    stop.longitude !== undefined
+                  ) {
+
+                    <div class="coordinates">
+
+                      <span>
+                        Latitude:
+                        {{ stop.latitude }}
+                      </span>
+
+                      <span>
+                        Longitude:
+                        {{ stop.longitude }}
+                      </span>
+
+                    </div>
+
+                  }
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+        @else {
+
+          <div class="no-stops">
+
+            <mat-icon>
+              pin_drop
+            </mat-icon>
+
+            <p>
+              No stops have been added to this route.
+            </p>
+
+          </div>
+
+        }
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ========================================================
+         ACTIONS
+         ========================================================= -->
+
+    <div class="action-bar">
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="editRoute()">
+
+        <mat-icon>
+          edit
+        </mat-icon>
+
+        Edit Route
+
+      </button>
+
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="openPlanner()">
+
+        <mat-icon>
+          map
+        </mat-icon>
+
+        Route Planner
+
+      </button>
+
+
+      <button
+        mat-stroked-button
+        color="warn"
+        type="button"
+        [disabled]="deleting"
+        (click)="deleteRoute()">
+
+        @if (deleting) {
+
+          <mat-spinner
+            diameter="18">
+          </mat-spinner>
+
+        }
+
+        @else {
+
+          <mat-icon>
+            delete
+          </mat-icon>
+
+        }
+
+        {{ deleting ? 'Deleting...' : 'Delete Route' }}
+
+      </button>
+
+    </div>
+
+  }
+
+</div>

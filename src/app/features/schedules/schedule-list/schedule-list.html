@@ -1,0 +1,400 @@
+<mat-card>
+
+  <mat-card-header>
+    <mat-card-title>
+      Schedule Management
+    </mat-card-title>
+
+    <mat-card-subtitle>
+      Manage pickup and delivery schedules
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+
+    <!-- ERROR MESSAGE -->
+    <div
+      *ngIf="errorMessage"
+      class="error-message"
+    >
+      {{ errorMessage }}
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-container">
+
+      <div class="summary-card">
+        <div class="summary-label">Total</div>
+        <div class="summary-value">
+          {{ summary.total }}
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Scheduled</div>
+        <div class="summary-value">
+          {{ summary.scheduled }}
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Rescheduled</div>
+        <div class="summary-value">
+          {{ summary.rescheduled }}
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Cancelled</div>
+        <div class="summary-value">
+          {{ summary.cancelled }}
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Completed</div>
+        <div class="summary-value">
+          {{ summary.completed }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-container">
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="createSchedule()"
+      >
+        <mat-icon>add</mat-icon>
+        Create Schedule
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="openCalendar()"
+      >
+        <mat-icon>calendar_month</mat-icon>
+        Calendar
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="refresh()"
+      >
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+    </div>
+
+    <!-- LOADING -->
+    <div
+      *ngIf="loading"
+      class="loading-container"
+    >
+      Loading schedules...
+    </div>
+
+    <!-- SCHEDULE TABLE -->
+    <div
+      *ngIf="!loading"
+      class="table-container"
+    >
+
+      <table
+        mat-table
+        [dataSource]="schedules"
+        class="schedule-table"
+      >
+
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            ID
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ schedule.id }}
+          </td>
+
+        </ng-container>
+
+        <!-- TYPE -->
+        <ng-container matColumnDef="type">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Type
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+
+            <span
+              [ngClass]="getTypeClass(schedule.type)"
+            >
+              {{ getTypeLabel(schedule) }}
+            </span>
+
+          </td>
+
+        </ng-container>
+
+        <!-- SHIPMENT -->
+        <ng-container matColumnDef="shipmentId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Shipment
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ schedule.shipmentId || '-' }}
+          </td>
+
+        </ng-container>
+
+        <!-- ROUTE -->
+        <ng-container matColumnDef="routeId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Route
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ schedule.routeId || '-' }}
+          </td>
+
+        </ng-container>
+
+        <!-- DRIVER -->
+        <ng-container matColumnDef="driverId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Driver
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ schedule.driverId }}
+          </td>
+
+        </ng-container>
+
+        <!-- VEHICLE -->
+        <ng-container matColumnDef="vehicleId">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Vehicle
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ schedule.vehicleId }}
+          </td>
+
+        </ng-container>
+
+        <!-- START TIME -->
+        <ng-container matColumnDef="startTime">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Start Time
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ formatDateTime(schedule.startTime) }}
+          </td>
+
+        </ng-container>
+
+        <!-- END TIME -->
+        <ng-container matColumnDef="endTime">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            End Time
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+            {{ formatDateTime(schedule.endTime) }}
+          </td>
+
+        </ng-container>
+
+        <!-- STATUS -->
+        <ng-container matColumnDef="status">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Status
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+
+            <span
+              [ngClass]="getStatusClass(schedule.status)"
+            >
+              {{ getStatusLabel(schedule) }}
+            </span>
+
+          </td>
+
+        </ng-container>
+
+        <!-- ACTIONS -->
+        <ng-container matColumnDef="actions">
+
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+          >
+            Actions
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let schedule"
+          >
+
+            <!-- VIEW -->
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="View Schedule"
+              (click)="viewSchedule(schedule)"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+
+            <!-- EDIT -->
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Edit Schedule"
+              *ngIf="canEdit(schedule)"
+              (click)="editSchedule(schedule)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <!-- RESCHEDULE -->
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Reschedule"
+              *ngIf="canReschedule(schedule)"
+              (click)="rescheduleSchedule(schedule)"
+            >
+              <mat-icon>event</mat-icon>
+            </button>
+
+            <!-- CANCEL -->
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Cancel Schedule"
+              *ngIf="canCancel(schedule)"
+              (click)="cancelSchedule(schedule)"
+            >
+              <mat-icon>cancel</mat-icon>
+            </button>
+
+            <!-- DELETE -->
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Delete Schedule"
+              (click)="deleteSchedule(schedule)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+
+          </td>
+
+        </ng-container>
+
+        <!-- HEADER -->
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns"
+        ></tr>
+
+        <!-- ROW -->
+        <tr
+          mat-row
+          *matRowDef="
+            let row;
+            columns: displayedColumns
+          "
+        ></tr>
+
+      </table>
+
+      <!-- EMPTY MESSAGE -->
+      <div
+        *ngIf="schedules.length === 0"
+        class="empty-message"
+      >
+        No schedules found.
+      </div>
+
+    </div>
+
+  </mat-card-content>
+
+</mat-card>
