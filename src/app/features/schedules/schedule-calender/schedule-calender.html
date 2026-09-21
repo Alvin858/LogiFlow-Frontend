@@ -1,0 +1,267 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Back to schedules"
+        (click)="goToScheduleList()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div>
+        <h1>Schedule Calendar</h1>
+
+        <p>
+          View pickup and delivery schedules by date
+        </p>
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="goToToday()"
+      >
+        <mat-icon>today</mat-icon>
+        Today
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="createSchedule()"
+      >
+        <mat-icon>add</mat-icon>
+        New Schedule
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Error -->
+  <div
+    class="error-message"
+    *ngIf="errorMessage"
+  >
+    <mat-icon>error_outline</mat-icon>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+    <button
+      mat-button
+      type="button"
+      (click)="loadSchedules()"
+    >
+      Retry
+    </button>
+  </div>
+
+
+  <!-- Calendar Card -->
+  <mat-card class="calendar-card">
+
+    <!-- Calendar Header -->
+    <div class="calendar-header">
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Previous month"
+        (click)="previousMonth()"
+        [disabled]="loading"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <h2>
+        {{ getMonthYearLabel() }}
+      </h2>
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Next month"
+        (click)="nextMonth()"
+        [disabled]="loading"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div
+      class="calendar-loading"
+      *ngIf="loading"
+    >
+      <mat-spinner diameter="35"></mat-spinner>
+      <span>Loading schedules...</span>
+    </div>
+
+
+    <!-- Week Headers -->
+    <div
+      class="week-header"
+      *ngIf="!loading"
+    >
+
+      <div
+        class="week-day"
+        *ngFor="let day of weekDays"
+      >
+        {{ day }}
+      </div>
+
+    </div>
+
+
+    <!-- Calendar Grid -->
+    <div
+      class="calendar-grid"
+      *ngIf="!loading"
+    >
+
+      <div
+        class="calendar-day"
+        *ngFor="
+          let day of calendarDays;
+          trackBy: trackDay
+        "
+        [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday"
+      >
+
+        <!-- Day Number -->
+        <div class="day-header">
+
+          <span
+            class="day-number"
+            [class.today-number]="day.isToday"
+          >
+            {{ day.dayNumber }}
+          </span>
+
+          <span
+            class="schedule-count"
+            *ngIf="day.schedules.length > 0"
+          >
+            {{ day.schedules.length }}
+          </span>
+
+        </div>
+
+
+        <!-- Schedules -->
+        <div class="day-schedules">
+
+          <button
+            type="button"
+            class="schedule-item"
+            *ngFor="
+              let schedule of day.schedules;
+              trackBy: trackSchedule
+            "
+            [ngClass]="getTypeClass(schedule)"
+            [class.cancelled]="
+              schedule.status === 'Cancelled'
+            "
+            [class.completed]="
+              schedule.status === 'Completed'
+            "
+            [matTooltip]="
+              getScheduleTooltip(schedule)
+            "
+            (click)="openSchedule(schedule)"
+          >
+
+            <span class="schedule-time">
+              {{ getScheduleTime(schedule) }}
+            </span>
+
+            <span class="schedule-title">
+              {{ getScheduleTitle(schedule) }}
+            </span>
+
+            <span class="schedule-driver">
+              Driver {{ schedule.driverId }}
+            </span>
+
+          </button>
+
+
+          <!-- Empty day -->
+          <div
+            class="empty-day"
+            *ngIf="day.schedules.length === 0"
+          >
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </mat-card>
+
+
+  <!-- Legend -->
+  <mat-card class="legend-card">
+
+    <div class="legend-title">
+      <mat-icon>info</mat-icon>
+      <strong>Schedule Legend</strong>
+    </div>
+
+    <div class="legend-items">
+
+      <div class="legend-item">
+        <span class="legend-dot pickup"></span>
+        <span>Pickup</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot delivery"></span>
+        <span>Delivery</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot scheduled"></span>
+        <span>Scheduled</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot rescheduled"></span>
+        <span>Rescheduled</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot completed"></span>
+        <span>Completed</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot cancelled"></span>
+        <span>Cancelled</span>
+      </div>
+
+    </div>
+
+  </mat-card>
+
+</div>

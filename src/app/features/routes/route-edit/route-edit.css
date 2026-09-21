@@ -1,0 +1,174 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.page-header p {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.form-card {
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.stops-card {
+  margin-top: 24px;
+}
+
+.stops-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.stops-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stop-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.stop-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stop-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border: 1px solid #ccc;
+}
+
+.stop-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+.stop-actions {
+  display: flex;
+  align-items: center;
+}
+
+.stop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.loading-container {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-container p {
+  margin: 0;
+}
+
+.error-message {
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border: 1px solid #f0b7b7;
+  border-radius: 8px;
+}
+
+button mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+
+  .page-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-grid,
+  .stop-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .stops-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stop-header {
+    flex-wrap: wrap;
+  }
+
+  .stop-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
