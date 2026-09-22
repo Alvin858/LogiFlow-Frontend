@@ -1,0 +1,482 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+      <button
+        mat-button
+        type="button"
+        (click)="goBack()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Back to Deliveries
+      </button>
+
+      <h1>Delivery Details</h1>
+
+      <p *ngIf="delivery">
+        Delivery #{{ delivery.id }}
+      </p>
+    </div>
+
+    <div class="header-actions" *ngIf="delivery">
+
+      <button
+        mat-stroked-button
+        color="primary"
+        type="button"
+        (click)="openEdit()"
+        [disabled]="actionLoading"
+      >
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+
+      <button
+        mat-stroked-button
+        color="warn"
+        type="button"
+        (click)="deleteDelivery()"
+        [disabled]="actionLoading"
+      >
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Loading -->
+
+  <div
+    class="loading-container"
+    *ngIf="loading"
+  >
+    <mat-spinner diameter="45"></mat-spinner>
+
+    <p>Loading delivery details...</p>
+  </div>
+
+
+  <!-- Error -->
+
+  <mat-card
+    class="error-card"
+    *ngIf="!loading && errorMessage"
+  >
+    <mat-icon>error</mat-icon>
+
+    <div>
+      <h3>Unable to load delivery</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="loadDelivery()"
+    >
+      Retry
+    </button>
+  </mat-card>
+
+
+  <!-- Delivery -->
+
+  <div
+    class="content"
+    *ngIf="!loading && delivery"
+  >
+
+    <!-- Status -->
+
+    <mat-card class="status-card">
+
+      <div class="status-header">
+
+        <div>
+          <span class="section-label">
+            Current Status
+          </span>
+
+          <h2>
+            {{ getStatusLabel(delivery.status) }}
+          </h2>
+        </div>
+
+        <span
+          class="status-badge"
+          [ngClass]="getStatusClass(delivery.status)"
+        >
+          {{ getStatusLabel(delivery.status) }}
+        </span>
+
+      </div>
+
+    </mat-card>
+
+
+    <!-- Actions -->
+
+    <mat-card class="actions-card">
+
+      <h2>Delivery Workflow</h2>
+
+      <mat-divider></mat-divider>
+
+      <div class="workflow-actions">
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          *ngIf="canConfirmPickup()"
+          (click)="confirmPickup()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>inventory_2</mat-icon>
+          Confirm Pickup
+        </button>
+
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          *ngIf="canMarkOutForDelivery()"
+          (click)="markOutForDelivery()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>local_shipping</mat-icon>
+          Out for Delivery
+        </button>
+
+
+        <button
+          mat-raised-button
+          color="accent"
+          type="button"
+          *ngIf="canAddProofOfDelivery()"
+          (click)="openProofOfDelivery()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>fact_check</mat-icon>
+          Proof of Delivery
+        </button>
+
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          *ngIf="canCompleteDelivery()"
+          (click)="completeDelivery()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>check_circle</mat-icon>
+          Complete Delivery
+        </button>
+
+
+        <button
+          mat-stroked-button
+          color="warn"
+          type="button"
+          *ngIf="canFailDelivery()"
+          (click)="failDelivery()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>cancel</mat-icon>
+          Failed Delivery
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          *ngIf="isCompleted() || isFailed()"
+          (click)="openProofOfDelivery()"
+          [disabled]="actionLoading"
+        >
+          <mat-icon>description</mat-icon>
+          View POD
+        </button>
+
+      </div>
+
+      <div
+        class="action-loading"
+        *ngIf="actionLoading"
+      >
+        <mat-spinner diameter="25"></mat-spinner>
+        <span>Updating delivery...</span>
+      </div>
+
+    </mat-card>
+
+
+    <!-- Delivery Information -->
+
+    <div class="details-grid">
+
+      <mat-card>
+
+        <h2>Delivery Information</h2>
+
+        <mat-divider></mat-divider>
+
+        <div class="detail-list">
+
+          <div class="detail-row">
+            <span>Delivery ID</span>
+            <strong>#{{ delivery.id }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Shipment ID</span>
+            <strong>#{{ delivery.shipmentId }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Driver ID</span>
+            <strong>#{{ delivery.driverId }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Vehicle ID</span>
+            <strong>#{{ delivery.vehicleId }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Route</span>
+
+            <button
+              mat-button
+              color="primary"
+              type="button"
+              (click)="goToRoute()"
+            >
+              Route #{{ delivery.routeId }}
+            </button>
+          </div>
+
+          <div class="detail-row">
+            <span>Created</span>
+            <strong>{{ formatDate(delivery.createdAt) }}</strong>
+          </div>
+
+          <div class="detail-row">
+            <span>Last Updated</span>
+            <strong>{{ formatDate(delivery.updatedAt) }}</strong>
+          </div>
+
+        </div>
+
+      </mat-card>
+
+
+      <!-- Status Timeline -->
+
+      <mat-card>
+
+        <h2>Status Timeline</h2>
+
+        <mat-divider></mat-divider>
+
+        <div class="timeline">
+
+          <div
+            class="timeline-item"
+            [class.active]="
+              delivery.status === 'Pending' ||
+              delivery.status === 'PickupConfirmed' ||
+              delivery.status === 'OutForDelivery' ||
+              delivery.status === 'Completed'
+            "
+          >
+            <div class="timeline-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+
+            <div>
+              <strong>Pending</strong>
+              <p>Delivery created and waiting for pickup.</p>
+            </div>
+          </div>
+
+
+          <div
+            class="timeline-item"
+            [class.active]="
+              delivery.status === 'PickupConfirmed' ||
+              delivery.status === 'OutForDelivery' ||
+              delivery.status === 'Completed'
+            "
+          >
+            <div class="timeline-icon">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+
+            <div>
+              <strong>Pickup Confirmed</strong>
+
+              <p>
+                <span *ngIf="delivery.pickupConfirmedAt">
+                  {{ formatDate(delivery.pickupConfirmedAt) }}
+                </span>
+
+                <span *ngIf="!delivery.pickupConfirmedAt">
+                  Pickup confirmation pending.
+                </span>
+              </p>
+            </div>
+          </div>
+
+
+          <div
+            class="timeline-item"
+            [class.active]="
+              delivery.status === 'OutForDelivery' ||
+              delivery.status === 'Completed'
+            "
+          >
+            <div class="timeline-icon">
+              <mat-icon>local_shipping</mat-icon>
+            </div>
+
+            <div>
+              <strong>Out for Delivery</strong>
+
+              <p>
+                <span *ngIf="delivery.outForDeliveryAt">
+                  {{ formatDate(delivery.outForDeliveryAt) }}
+                </span>
+
+                <span *ngIf="!delivery.outForDeliveryAt">
+                  Delivery has not started.
+                </span>
+              </p>
+            </div>
+          </div>
+
+
+          <div
+            class="timeline-item"
+            [class.active]="delivery.status === 'Completed'"
+          >
+            <div class="timeline-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+
+            <div>
+              <strong>Completed</strong>
+
+              <p>
+                <span *ngIf="delivery.completedAt">
+                  {{ formatDate(delivery.completedAt) }}
+                </span>
+
+                <span *ngIf="!delivery.completedAt">
+                  Delivery not completed.
+                </span>
+              </p>
+            </div>
+          </div>
+
+
+          <div
+            class="timeline-item failed"
+            *ngIf="isFailed()"
+          >
+            <div class="timeline-icon">
+              <mat-icon>cancel</mat-icon>
+            </div>
+
+            <div>
+              <strong>Failed Delivery</strong>
+
+              <p>
+                {{ delivery.failureReason || 'No failure reason provided.' }}
+              </p>
+
+              <small *ngIf="delivery.failedAt">
+                {{ formatDate(delivery.failedAt) }}
+              </small>
+            </div>
+          </div>
+
+        </div>
+
+      </mat-card>
+
+    </div>
+
+
+    <!-- Proof of Delivery -->
+
+    <mat-card
+      class="pod-card"
+      *ngIf="delivery.proofOfDelivery"
+    >
+
+      <div class="pod-header">
+
+        <div>
+          <h2>Proof of Delivery</h2>
+          <p>Receiver information and delivery proof.</p>
+        </div>
+
+        <button
+          mat-stroked-button
+          color="primary"
+          type="button"
+          (click)="openProofOfDelivery()"
+        >
+          <mat-icon>visibility</mat-icon>
+          View POD
+        </button>
+
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-grid pod-details">
+
+        <div>
+          <span>Receiver Name</span>
+          <strong>
+            {{ delivery.proofOfDelivery.receiverName }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Receiver Contact</span>
+          <strong>
+            {{ delivery.proofOfDelivery.receiverContact || '-' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Received At</span>
+          <strong>
+            {{ formatDate(delivery.proofOfDelivery.receivedAt) }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Remarks</span>
+          <strong>
+            {{ delivery.proofOfDelivery.remarks || '-' }}
+          </strong>
+        </div>
+
+      </div>
+
+    </mat-card>
+
+  </div>
+
+</div>

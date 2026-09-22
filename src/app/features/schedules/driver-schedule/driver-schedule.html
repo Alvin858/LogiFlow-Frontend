@@ -1,0 +1,656 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <button
+        mat-icon-button
+        type="button"
+        matTooltip="Back to schedules"
+        (click)="openScheduleList()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div>
+        <h1>Driver Schedule</h1>
+
+        <p>
+          Driver #{{ driverId }}
+        </p>
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="refresh()"
+        [disabled]="loading"
+      >
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="openCalendar()"
+      >
+        <mat-icon>calendar_month</mat-icon>
+        Calendar
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="createSchedule()"
+      >
+        <mat-icon>add</mat-icon>
+        New Schedule
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Loading -->
+  <div
+    class="loading-container"
+    *ngIf="loading"
+  >
+    <mat-spinner diameter="45"></mat-spinner>
+
+    <p>
+      Loading driver schedules...
+    </p>
+  </div>
+
+
+  <!-- Error -->
+  <mat-card
+    class="error-card"
+    *ngIf="!loading && errorMessage"
+  >
+
+    <mat-icon>error_outline</mat-icon>
+
+    <div class="error-content">
+      <h3>Unable to load schedules</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="refresh()"
+    >
+      Retry
+    </button>
+
+  </mat-card>
+
+
+  <!-- Content -->
+  <div
+    class="content"
+    *ngIf="!loading"
+  >
+
+    <!-- Summary -->
+    <div class="summary-grid">
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>event_note</mat-icon>
+        </div>
+
+        <div>
+          <span>Total Schedules</span>
+          <strong>{{ totalCount }}</strong>
+        </div>
+
+      </mat-card>
+
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>event</mat-icon>
+        </div>
+
+        <div>
+          <span>Scheduled</span>
+          <strong>{{ scheduledCount }}</strong>
+        </div>
+
+      </mat-card>
+
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>event_repeat</mat-icon>
+        </div>
+
+        <div>
+          <span>Rescheduled</span>
+          <strong>{{ rescheduledCount }}</strong>
+        </div>
+
+      </mat-card>
+
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+
+        <div>
+          <span>Completed</span>
+          <strong>{{ completedCount }}</strong>
+        </div>
+
+      </mat-card>
+
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+
+        <div>
+          <span>Pickups</span>
+          <strong>{{ pickupCount }}</strong>
+        </div>
+
+      </mat-card>
+
+
+      <mat-card class="summary-card">
+
+        <div class="summary-icon">
+          <mat-icon>local_shipping</mat-icon>
+        </div>
+
+        <div>
+          <span>Deliveries</span>
+          <strong>{{ deliveryCount }}</strong>
+        </div>
+
+      </mat-card>
+
+    </div>
+
+
+    <!-- Conflict Warning -->
+    <mat-card
+      class="conflict-card"
+      *ngIf="getConflictCount() > 0"
+    >
+
+      <mat-icon>warning</mat-icon>
+
+      <div>
+        <strong>
+          Schedule conflicts detected
+        </strong>
+
+        <p>
+          {{ getConflictCount() }}
+          overlapping schedule pair(s) were detected
+          for this driver.
+        </p>
+      </div>
+
+    </mat-card>
+
+
+    <!-- Filters -->
+    <mat-card class="filter-card">
+
+      <div class="filter-header">
+
+        <div>
+          <h2>Schedule Filter</h2>
+
+          <p>
+            Filter schedules by status
+          </p>
+        </div>
+
+        <span class="result-count">
+          {{ filteredSchedules.length }}
+          schedule(s)
+        </span>
+
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="filter-buttons">
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.active-filter]="selectedStatus === 'All'"
+          (click)="setStatusFilter('All')"
+        >
+          All
+
+          <span class="filter-count">
+            {{ totalCount }}
+          </span>
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.active-filter]="selectedStatus === 'Scheduled'"
+          (click)="setStatusFilter('Scheduled')"
+        >
+          Scheduled
+
+          <span class="filter-count">
+            {{ scheduledCount }}
+          </span>
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.active-filter]="selectedStatus === 'Rescheduled'"
+          (click)="setStatusFilter('Rescheduled')"
+        >
+          Rescheduled
+
+          <span class="filter-count">
+            {{ rescheduledCount }}
+          </span>
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.active-filter]="selectedStatus === 'Completed'"
+          (click)="setStatusFilter('Completed')"
+        >
+          Completed
+
+          <span class="filter-count">
+            {{ completedCount }}
+          </span>
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          [class.active-filter]="selectedStatus === 'Cancelled'"
+          (click)="setStatusFilter('Cancelled')"
+        >
+          Cancelled
+
+          <span class="filter-count">
+            {{ cancelledCount }}
+          </span>
+        </button>
+
+      </div>
+
+    </mat-card>
+
+
+    <!-- Empty State -->
+    <mat-card
+      class="empty-card"
+      *ngIf="filteredSchedules.length === 0"
+    >
+
+      <mat-icon>event_busy</mat-icon>
+
+      <h2>
+        No schedules found
+      </h2>
+
+      <p>
+        This driver has no schedules matching
+        the selected filter.
+      </p>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="createSchedule()"
+      >
+        <mat-icon>add</mat-icon>
+        Create Schedule
+      </button>
+
+    </mat-card>
+
+
+    <!-- Schedule List -->
+    <div
+      class="schedule-list"
+      *ngIf="filteredSchedules.length > 0"
+    >
+
+      <mat-card
+        class="schedule-card"
+        *ngFor="
+          let schedule of filteredSchedules;
+          trackBy: trackByScheduleId
+        "
+        [class.has-conflict]="
+          hasScheduleConflict(schedule)
+        "
+      >
+
+        <!-- Date -->
+        <div class="date-column">
+
+          <span class="date-day">
+            {{ schedule.startTime | date:'dd' }}
+          </span>
+
+          <span class="date-month">
+            {{ schedule.startTime | date:'MMM' }}
+          </span>
+
+          <span class="date-year">
+            {{ schedule.startTime | date:'yyyy' }}
+          </span>
+
+          <span
+            class="today-label"
+            *ngIf="isToday(schedule.startTime)"
+          >
+            TODAY
+          </span>
+
+        </div>
+
+
+        <!-- Main Details -->
+        <div class="schedule-main">
+
+          <div class="schedule-header">
+
+            <div class="schedule-title">
+
+              <span
+                class="type-icon"
+                [ngClass]="getTypeClass(schedule.type)"
+              >
+                <mat-icon>
+                  {{ getTypeIcon(schedule.type) }}
+                </mat-icon>
+              </span>
+
+              <div>
+
+                <h2>
+                  {{ schedule.type }}
+                  Schedule #{{ schedule.id }}
+                </h2>
+
+                <p>
+                  {{ formatDate(schedule.startTime) }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="schedule-badges">
+
+              <span
+                class="status-badge"
+                [ngClass]="getStatusClass(schedule.status)"
+              >
+
+                <mat-icon>
+                  {{ getStatusIcon(schedule.status) }}
+                </mat-icon>
+
+                {{ schedule.status }}
+
+              </span>
+
+
+              <span
+                class="conflict-badge"
+                *ngIf="hasScheduleConflict(schedule)"
+              >
+
+                <mat-icon>
+                  warning
+                </mat-icon>
+
+                Conflict
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <mat-divider></mat-divider>
+
+
+          <!-- Schedule Details -->
+          <div class="details-grid">
+
+            <div class="detail-item">
+
+              <mat-icon>
+                schedule
+              </mat-icon>
+
+              <div>
+
+                <span class="label">
+                  Time
+                </span>
+
+                <strong>
+                  {{ formatTime(schedule.startTime) }}
+                  -
+                  {{ formatTime(schedule.endTime) }}
+                </strong>
+
+                <small>
+                  {{ getDuration(schedule) }}
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="detail-item">
+
+              <mat-icon>
+                local_shipping
+              </mat-icon>
+
+              <div>
+
+                <span class="label">
+                  Vehicle
+                </span>
+
+                <strong>
+                  Vehicle #{{ schedule.vehicleId }}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <div class="detail-item">
+
+              <mat-icon>
+                route
+              </mat-icon>
+
+              <div>
+
+                <span class="label">
+                  Route
+                </span>
+
+                <strong>
+
+                  <span
+                    *ngIf="schedule.routeId"
+                  >
+                    Route #{{ schedule.routeId }}
+                  </span>
+
+                  <span
+                    *ngIf="!schedule.routeId"
+                  >
+                    Not assigned
+                  </span>
+
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <div class="detail-item">
+
+              <mat-icon>
+                inventory_2
+              </mat-icon>
+
+              <div>
+
+                <span class="label">
+                  Shipment
+                </span>
+
+                <strong>
+
+                  <span
+                    *ngIf="schedule.shipmentId"
+                  >
+                    Shipment #{{ schedule.shipmentId }}
+                  </span>
+
+                  <span
+                    *ngIf="!schedule.shipmentId"
+                  >
+                    Not assigned
+                  </span>
+
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Warnings -->
+          <div
+            class="schedule-warning"
+            *ngIf="isPast(schedule)"
+          >
+
+            <mat-icon>
+              history
+            </mat-icon>
+
+            <span>
+              This schedule has passed its end time.
+            </span>
+
+          </div>
+
+
+          <div
+            class="schedule-upcoming"
+            *ngIf="isUpcoming(schedule)"
+          >
+
+            <mat-icon>
+              upcoming
+            </mat-icon>
+
+            <span>
+              Upcoming schedule
+            </span>
+
+          </div>
+
+
+          <!-- Actions -->
+          <div class="schedule-actions">
+
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="openSchedule(schedule)"
+            >
+
+              <mat-icon>
+                visibility
+              </mat-icon>
+
+              View
+
+            </button>
+
+
+            <button
+              mat-stroked-button
+              color="primary"
+              type="button"
+              *ngIf="
+                schedule.status !== 'Completed' &&
+                schedule.status !== 'Cancelled'
+              "
+              (click)="editSchedule(schedule)"
+            >
+
+              <mat-icon>
+                edit
+              </mat-icon>
+
+              Edit
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </mat-card>
+
+    </div>
+
+  </div>
+
+</div>

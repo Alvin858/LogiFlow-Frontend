@@ -14,12 +14,18 @@
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "lib": ["ES2022", "dom"]
+    "lib": [
+      "ES2022",
+      "dom"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
 }

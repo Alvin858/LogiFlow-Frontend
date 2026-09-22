@@ -1,0 +1,506 @@
+<div class="schedule-edit-page">
+
+  <!-- ========================================================
+       HEADER
+       ======================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>Edit Schedule</h1>
+
+      <p *ngIf="schedule?.id">
+        Update schedule #{{ schedule?.id }}
+      </p>
+
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="backToList()">
+
+      <mat-icon>
+        arrow_back
+      </mat-icon>
+
+      Back to Schedules
+
+    </button>
+
+  </div>
+
+
+  <!-- ========================================================
+       LOADING
+       ======================================================== -->
+
+  <div
+    class="loading-box"
+    *ngIf="loadingSchedule">
+
+    <mat-icon class="spin">
+      refresh
+    </mat-icon>
+
+    <span>
+      Loading schedule...
+    </span>
+
+  </div>
+
+
+  <!-- ========================================================
+       ERROR
+       ======================================================== -->
+
+  <div
+    class="message error-message"
+    *ngIf="errorMessage">
+
+    <mat-icon>
+      error
+    </mat-icon>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+  </div>
+
+
+  <!-- ========================================================
+       SUCCESS
+       ======================================================== -->
+
+  <div
+    class="message success-message"
+    *ngIf="successMessage">
+
+    <mat-icon>
+      check_circle
+    </mat-icon>
+
+    <span>
+      {{ successMessage }}
+    </span>
+
+  </div>
+
+
+  <!-- ========================================================
+       FORM
+       ======================================================== -->
+
+  <mat-card
+    class="form-card"
+    *ngIf="!loadingSchedule && schedule">
+
+    <form
+      [formGroup]="scheduleForm"
+      (ngSubmit)="submit()"
+      novalidate>
+
+
+      <!-- ======================================================
+           BASIC INFORMATION
+           ====================================================== -->
+
+      <div class="section">
+
+        <h2>Schedule Information</h2>
+
+        <div class="form-grid">
+
+
+          <!-- TYPE -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Schedule Type
+            </mat-label>
+
+            <mat-select
+              formControlName="type">
+
+              <mat-option
+                *ngFor="let type of scheduleTypes"
+                [value]="type">
+
+                {{ type }}
+
+              </mat-option>
+
+            </mat-select>
+
+            <mat-error
+              *ngIf="isInvalid('type')">
+
+              {{ getFieldError('type') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- STATUS -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Status
+            </mat-label>
+
+            <mat-select
+              formControlName="status">
+
+              <mat-option
+                *ngFor="let status of scheduleStatuses"
+                [value]="status">
+
+                {{ status }}
+
+              </mat-option>
+
+            </mat-select>
+
+            <mat-error
+              *ngIf="isInvalid('status')">
+
+              {{ getFieldError('status') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- SHIPMENT -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Shipment ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="shipmentId">
+
+            <mat-error
+              *ngIf="isInvalid('shipmentId')">
+
+              {{ getFieldError('shipmentId') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- ROUTE -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Route ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="routeId">
+
+            <mat-error
+              *ngIf="isInvalid('routeId')">
+
+              {{ getFieldError('routeId') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================
+           RESOURCE ASSIGNMENT
+           ====================================================== -->
+
+      <div class="section">
+
+        <h2>Resource Assignment</h2>
+
+        <div class="form-grid">
+
+
+          <!-- DRIVER -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Driver ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="driverId">
+
+            <mat-hint>
+              Driver assigned to this schedule.
+            </mat-hint>
+
+            <mat-error
+              *ngIf="isInvalid('driverId')">
+
+              {{ getFieldError('driverId') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- VEHICLE -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Vehicle ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="vehicleId">
+
+            <mat-hint>
+              Vehicle assigned to this schedule.
+            </mat-hint>
+
+            <mat-error
+              *ngIf="isInvalid('vehicleId')">
+
+              {{ getFieldError('vehicleId') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+        </div>
+
+
+        <!-- DRIVER CONFLICT -->
+
+        <div
+          class="conflict-warning"
+          *ngIf="hasDriverConflict()">
+
+          <mat-icon>
+            warning
+          </mat-icon>
+
+          <span>
+            The selected driver already has another
+            schedule during this time.
+          </span>
+
+        </div>
+
+
+        <!-- VEHICLE CONFLICT -->
+
+        <div
+          class="conflict-warning"
+          *ngIf="hasVehicleConflict()">
+
+          <mat-icon>
+            warning
+          </mat-icon>
+
+          <span>
+            The selected vehicle already has another
+            schedule during this time.
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================
+           TIME
+           ====================================================== -->
+
+      <div class="section">
+
+        <h2>Schedule Time</h2>
+
+        <div class="form-grid">
+
+
+          <!-- START -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Start Time
+            </mat-label>
+
+            <input
+              matInput
+              type="datetime-local"
+              formControlName="startTime">
+
+            <mat-error
+              *ngIf="isInvalid('startTime')">
+
+              {{ getFieldError('startTime') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- END -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              End Time
+            </mat-label>
+
+            <input
+              matInput
+              type="datetime-local"
+              formControlName="endTime"
+              [min]="getMinimumEndTime()">
+
+            <mat-error
+              *ngIf="isInvalid('endTime')">
+
+              {{ getFieldError('endTime') }}
+
+            </mat-error>
+
+          </mat-form-field>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================================
+           NOTES
+           ====================================================== -->
+
+      <div class="section">
+
+        <h2>Notes</h2>
+
+        <mat-form-field
+          appearance="outline"
+          class="full-width">
+
+          <mat-label>
+            Notes
+          </mat-label>
+
+          <textarea
+            matInput
+            rows="5"
+            maxlength="1000"
+            formControlName="notes"
+            placeholder="Enter additional schedule notes">
+          </textarea>
+
+          <mat-hint align="end">
+            {{ scheduleForm.get('notes')?.value?.length || 0 }}/1000
+          </mat-hint>
+
+          <mat-error
+            *ngIf="isInvalid('notes')">
+
+            {{ getFieldError('notes') }}
+
+          </mat-error>
+
+        </mat-form-field>
+
+      </div>
+
+
+      <!-- ======================================================
+           ACTIONS
+           ====================================================== -->
+
+      <div class="form-actions">
+
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="loading"
+          (click)="reset()">
+
+          <mat-icon>
+            restart_alt
+          </mat-icon>
+
+          Reset
+
+        </button>
+
+
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="loading"
+          (click)="cancel()">
+
+          Cancel
+
+        </button>
+
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loading">
+
+          <mat-icon>
+            save
+          </mat-icon>
+
+          <span *ngIf="!loading">
+            Save Changes
+          </span>
+
+          <span *ngIf="loading">
+            Saving...
+          </span>
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </mat-card>
+
+</div>
