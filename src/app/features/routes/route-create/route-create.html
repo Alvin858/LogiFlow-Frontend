@@ -1,0 +1,579 @@
+<!--
+  src/app/features/routes/route-create/route-create.component.html
+-->
+
+<div class="route-create-page">
+
+  <!-- ==========================================================
+       PAGE HEADER
+       =========================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Create Route
+      </h1>
+
+      <p>
+        Create a delivery route and define its ordered stops.
+      </p>
+
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cancel()">
+
+      <mat-icon>
+        arrow_back
+      </mat-icon>
+
+      Back to Routes
+
+    </button>
+
+  </div>
+
+
+  <!-- ==========================================================
+       FORM
+       =========================================================== -->
+
+  <form
+    [formGroup]="routeForm"
+    (ngSubmit)="createRoute()"
+    novalidate>
+
+
+    <!-- ========================================================
+         ROUTE INFORMATION
+         ========================================================= -->
+
+    <mat-card class="form-card">
+
+      <mat-card-header>
+
+        <mat-card-title>
+          Route Information
+        </mat-card-title>
+
+        <mat-card-subtitle>
+          Enter the basic route details.
+        </mat-card-subtitle>
+
+      </mat-card-header>
+
+
+      <mat-card-content>
+
+        <div class="form-grid">
+
+
+          <!-- ==================================================
+               START LOCATION
+               =================================================== -->
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width">
+
+            <mat-label>
+              Start Location
+            </mat-label>
+
+            <input
+              matInput
+              type="text"
+              formControlName="startLocation"
+              placeholder="Enter starting location">
+
+            <mat-icon
+              matSuffix>
+              trip_origin
+            </mat-icon>
+
+            @if (
+              isInvalid('startLocation')
+            ) {
+
+              <mat-error>
+
+                @if (
+                  routeForm
+                    .get('startLocation')
+                    ?.hasError('required')
+                ) {
+                  Start location is required.
+                }
+
+                @else {
+                  Enter a valid start location.
+                }
+
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==================================================
+               DESTINATION
+               =================================================== -->
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width">
+
+            <mat-label>
+              Destination
+            </mat-label>
+
+            <input
+              matInput
+              type="text"
+              formControlName="destination"
+              placeholder="Enter destination">
+
+            <mat-icon
+              matSuffix>
+              location_on
+            </mat-icon>
+
+            @if (
+              isInvalid('destination')
+            ) {
+
+              <mat-error>
+
+                @if (
+                  routeForm
+                    .get('destination')
+                    ?.hasError('required')
+                ) {
+                  Destination is required.
+                }
+
+                @else {
+                  Enter a valid destination.
+                }
+
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==================================================
+               DISTANCE
+               =================================================== -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Distance (km)
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="0"
+              step="0.1"
+              formControlName="distance">
+
+            <span
+              matTextSuffix>
+              km
+            </span>
+
+            @if (
+              isInvalid('distance')
+            ) {
+
+              <mat-error>
+                Distance cannot be negative.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==================================================
+               ESTIMATED DURATION
+               =================================================== -->
+
+          <mat-form-field
+            appearance="outline">
+
+            <mat-label>
+              Estimated Duration
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="estimatedDuration">
+
+            <span
+              matTextSuffix>
+              min
+            </span>
+
+            @if (
+              isInvalid('estimatedDuration')
+            ) {
+
+              <mat-error>
+                Duration must be at least 1 minute.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ==========================================================
+         ROUTE STOPS
+         =========================================================== -->
+
+    <mat-card class="form-card stops-card">
+
+      <mat-card-header>
+
+        <div class="stops-header">
+
+          <div>
+
+            <mat-card-title>
+              Route Stops
+            </mat-card-title>
+
+            <mat-card-subtitle>
+              Add stops in the order they should be visited.
+            </mat-card-subtitle>
+
+          </div>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="addStop()">
+
+            <mat-icon>
+              add
+            </mat-icon>
+
+            Add Stop
+
+          </button>
+
+        </div>
+
+      </mat-card-header>
+
+
+      <mat-card-content>
+
+        <div
+          formArrayName="stops"
+          class="stops-container">
+
+
+          <!-- ==================================================
+               NO STOPS
+               =================================================== -->
+
+          @if (stops.length === 0) {
+
+            <div class="no-stops">
+
+              <mat-icon>
+                pin_drop
+              </mat-icon>
+
+              <h3>
+                No stops added
+              </h3>
+
+              <p>
+                Add at least one stop to define the route.
+              </p>
+
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                (click)="addStop()">
+
+                <mat-icon>
+                  add
+                </mat-icon>
+
+                Add First Stop
+
+              </button>
+
+            </div>
+
+          }
+
+
+          <!-- ==================================================
+               STOP LIST
+               =================================================== -->
+
+          @for (
+            stop of stops.controls;
+            track $index;
+            let i = $index
+          ) {
+
+            <div
+              class="stop-row"
+              [formGroupName]="i">
+
+
+              <!-- =================================================
+                   STOP NUMBER
+                   ================================================== -->
+
+              <div class="stop-number">
+
+                <span>
+                  {{ i + 1 }}
+                </span>
+
+              </div>
+
+
+              <!-- =================================================
+                   STOP DETAILS
+                   ================================================== -->
+
+              <div class="stop-fields">
+
+
+                <!-- ADDRESS -->
+
+                <mat-form-field
+                  appearance="outline"
+                  class="address-field">
+
+                  <mat-label>
+                    Stop Address
+                  </mat-label>
+
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="address"
+                    placeholder="Enter stop address">
+
+                  <mat-icon
+                    matSuffix>
+                    location_on
+                  </mat-icon>
+
+                  @if (
+                    isStopInvalid(i, 'address')
+                  ) {
+
+                    <mat-error>
+                      Stop address is required.
+                    </mat-error>
+
+                  }
+
+                </mat-form-field>
+
+
+                <!-- LOCATION -->
+
+                <mat-form-field
+                  appearance="outline"
+                  class="location-field">
+
+                  <mat-label>
+                    Location / Description
+                  </mat-label>
+
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="location"
+                    placeholder="Optional location description">
+
+                </mat-form-field>
+
+
+                <!-- LATITUDE -->
+
+                <mat-form-field
+                  appearance="outline"
+                  class="coordinate-field">
+
+                  <mat-label>
+                    Latitude
+                  </mat-label>
+
+                  <input
+                    matInput
+                    type="number"
+                    step="any"
+                    formControlName="latitude"
+                    placeholder="e.g. 9.9252">
+
+                </mat-form-field>
+
+
+                <!-- LONGITUDE -->
+
+                <mat-form-field
+                  appearance="outline"
+                  class="coordinate-field">
+
+                  <mat-label>
+                    Longitude
+                  </mat-label>
+
+                  <input
+                    matInput
+                    type="number"
+                    step="any"
+                    formControlName="longitude"
+                    placeholder="e.g. 78.1198">
+
+                </mat-form-field>
+
+              </div>
+
+
+              <!-- =================================================
+                   STOP ACTIONS
+                   ================================================== -->
+
+              <div class="stop-actions">
+
+
+                <!-- MOVE UP -->
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  matTooltip="Move stop up"
+                  [disabled]="i === 0"
+                  (click)="moveStopUp(i)">
+
+                  <mat-icon>
+                    arrow_upward
+                  </mat-icon>
+
+                </button>
+
+
+                <!-- MOVE DOWN -->
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  matTooltip="Move stop down"
+                  [disabled]="i === stops.length - 1"
+                  (click)="moveStopDown(i)">
+
+                  <mat-icon>
+                    arrow_downward
+                  </mat-icon>
+
+                </button>
+
+
+                <!-- DELETE -->
+
+                <button
+                  mat-icon-button
+                  color="warn"
+                  type="button"
+                  matTooltip="Remove stop"
+                  (click)="removeStop(i)">
+
+                  <mat-icon>
+                    delete
+                  </mat-icon>
+
+                </button>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ==========================================================
+         FORM ACTIONS
+         =========================================================== -->
+
+    <div class="form-actions">
+
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="loading"
+        (click)="cancel()">
+
+        Cancel
+
+      </button>
+
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="loading">
+
+        @if (loading) {
+
+          <mat-spinner
+            diameter="20">
+          </mat-spinner>
+
+        }
+
+        @else {
+
+          <mat-icon>
+            save
+          </mat-icon>
+
+        }
+
+        {{ loading ? 'Creating...' : 'Create Route' }}
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

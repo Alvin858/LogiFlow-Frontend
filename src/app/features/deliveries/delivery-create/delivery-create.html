@@ -1,0 +1,361 @@
+<div class="page-container">
+
+  <!-- ==================================================
+       HEADER
+       ================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Create Delivery
+      </h1>
+
+      <p>
+        Assign a shipment, driver, vehicle and route.
+      </p>
+
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cancel()"
+      [disabled]="loading">
+
+      <mat-icon>
+        arrow_back
+      </mat-icon>
+
+      Back to Deliveries
+
+    </button>
+
+  </div>
+
+
+  <!-- ==================================================
+       ERROR
+       ================================================== -->
+
+  @if (errorMessage) {
+
+    <div class="error-message">
+
+      <mat-icon>
+        error_outline
+      </mat-icon>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ==================================================
+       FORM
+       ================================================== -->
+
+  <form
+    [formGroup]="deliveryForm"
+    (ngSubmit)="submit()">
+
+    <mat-card class="form-card">
+
+      <mat-card-header>
+
+        <mat-card-title>
+          Delivery Assignment
+        </mat-card-title>
+
+        <mat-card-subtitle>
+          Select the resources required for this delivery.
+        </mat-card-subtitle>
+
+      </mat-card-header>
+
+
+      <mat-card-content>
+
+        <div class="form-grid">
+
+          <!-- ==========================================
+               SHIPMENT
+               ========================================== -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>
+              Shipment ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="shipmentId"
+              placeholder="Enter shipment ID">
+
+            <mat-icon
+              matSuffix>
+              inventory_2
+            </mat-icon>
+
+            @if (
+              isInvalid('shipmentId')
+            ) {
+
+              <mat-error>
+                Shipment ID is required and must be greater than zero.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==========================================
+               DRIVER
+               ========================================== -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>
+              Driver ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="driverId"
+              placeholder="Enter driver ID">
+
+            <mat-icon
+              matSuffix>
+              person
+            </mat-icon>
+
+            @if (
+              isInvalid('driverId')
+            ) {
+
+              <mat-error>
+                Driver ID is required and must be greater than zero.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==========================================
+               VEHICLE
+               ========================================== -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>
+              Vehicle ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="vehicleId"
+              placeholder="Enter vehicle ID">
+
+            <mat-icon
+              matSuffix>
+              directions_car
+            </mat-icon>
+
+            @if (
+              isInvalid('vehicleId')
+            ) {
+
+              <mat-error>
+                Vehicle ID is required and must be greater than zero.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+
+          <!-- ==========================================
+               ROUTE
+               ========================================== -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>
+              Route ID
+            </mat-label>
+
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="routeId"
+              placeholder="Enter route ID">
+
+            <mat-icon
+              matSuffix>
+              route
+            </mat-icon>
+
+            @if (
+              isInvalid('routeId')
+            ) {
+
+              <mat-error>
+                Route ID is required and must be greater than zero.
+              </mat-error>
+
+            }
+
+          </mat-form-field>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ==================================================
+         INFORMATION
+         ================================================== -->
+
+    <mat-card class="info-card">
+
+      <mat-card-content>
+
+        <div class="info-row">
+
+          <mat-icon>
+            info
+          </mat-icon>
+
+          <div>
+
+            <strong>
+              Delivery workflow
+            </strong>
+
+            <p>
+              After creating the delivery, it starts in
+              <strong>Pending</strong> status.
+            </p>
+
+            <p>
+              The normal workflow is:
+            </p>
+
+            <div class="workflow">
+
+              <span>
+                Pending
+              </span>
+
+              <mat-icon>
+                arrow_forward
+              </mat-icon>
+
+              <span>
+                Pickup Confirmed
+              </span>
+
+              <mat-icon>
+                arrow_forward
+              </mat-icon>
+
+              <span>
+                Out for Delivery
+              </span>
+
+              <mat-icon>
+                arrow_forward
+              </mat-icon>
+
+              <span>
+                Completed
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- ==================================================
+         ACTIONS
+         ================================================== -->
+
+    <div class="form-actions">
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cancel()"
+        [disabled]="loading">
+
+        Cancel
+
+      </button>
+
+
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="resetForm()"
+        [disabled]="loading">
+
+        <mat-icon>
+          refresh
+        </mat-icon>
+
+        Reset
+
+      </button>
+
+
+      <button
+        mat-flat-button
+        type="submit"
+        [disabled]="loading">
+
+        @if (loading) {
+
+          <mat-spinner
+            diameter="20">
+          </mat-spinner>
+
+        } @else {
+
+          <mat-icon>
+            save
+          </mat-icon>
+
+          Create Delivery
+
+        }
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

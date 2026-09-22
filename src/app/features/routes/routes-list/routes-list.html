@@ -1,0 +1,465 @@
+<!--
+  src/app/features/routes/route-list/route-list.component.html
+-->
+
+<div class="route-page">
+
+  <!-- ==========================================================
+       HEADER
+       =========================================================== -->
+
+  <div class="page-header">
+
+    <div class="header-content">
+
+      <h1>
+        Route Management
+      </h1>
+
+      <p>
+        Create, manage and plan delivery routes.
+      </p>
+
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="createRoute()">
+
+      <mat-icon>
+        add
+      </mat-icon>
+
+      Create Route
+
+    </button>
+
+  </div>
+
+
+  <!-- ==========================================================
+       MAIN CARD
+       =========================================================== -->
+
+  <mat-card class="route-card">
+
+    <!-- ========================================================
+         LOADING
+         ========================================================= -->
+
+    @if (loading) {
+
+      <div class="loading-container">
+
+        <mat-spinner
+          diameter="45">
+        </mat-spinner>
+
+        <p>
+          Loading routes...
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================
+         ERROR
+         ========================================================= -->
+
+    @if (!loading && errorMessage) {
+
+      <div class="error-container">
+
+        <mat-icon>
+          error_outline
+        </mat-icon>
+
+        <div>
+
+          <h3>
+            Unable to load routes
+          </h3>
+
+          <p>
+            {{ errorMessage }}
+          </p>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="loadRoutes()">
+
+            <mat-icon>
+              refresh
+            </mat-icon>
+
+            Try Again
+
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================
+         EMPTY STATE
+         ========================================================= -->
+
+    @if (
+      !loading &&
+      !errorMessage &&
+      routes.length === 0
+    ) {
+
+      <div class="empty-container">
+
+        <mat-icon class="empty-icon">
+          route
+        </mat-icon>
+
+        <h2>
+          No routes found
+        </h2>
+
+        <p>
+          Create your first delivery route to get started.
+        </p>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="createRoute()">
+
+          <mat-icon>
+            add
+          </mat-icon>
+
+          Create Route
+
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================
+         ROUTE TABLE
+         ========================================================= -->
+
+    @if (
+      !loading &&
+      !errorMessage &&
+      routes.length > 0
+    ) {
+
+      <div class="table-container">
+
+        <table
+          mat-table
+          [dataSource]="routes"
+          class="route-table">
+
+
+          <!-- ==================================================
+               ID
+               =================================================== -->
+
+          <ng-container matColumnDef="id">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              ID
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              #{{ route.id }}
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               START LOCATION
+               =================================================== -->
+
+          <ng-container matColumnDef="startLocation">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Start Location
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              <div class="location-cell">
+
+                <mat-icon>
+                  trip_origin
+                </mat-icon>
+
+                <span>
+                  {{ route.startLocation }}
+                </span>
+
+              </div>
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               DESTINATION
+               =================================================== -->
+
+          <ng-container matColumnDef="destination">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Destination
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              <div class="location-cell">
+
+                <mat-icon>
+                  location_on
+                </mat-icon>
+
+                <span>
+                  {{ route.destination }}
+                </span>
+
+              </div>
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               DISTANCE
+               =================================================== -->
+
+          <ng-container matColumnDef="distance">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Distance
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              {{ formatDistance(route.distance) }}
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               ESTIMATED DURATION
+               =================================================== -->
+
+          <ng-container matColumnDef="estimatedDuration">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Duration
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              {{ formatDuration(route.estimatedDuration) }}
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               STOPS
+               =================================================== -->
+
+          <ng-container matColumnDef="stops">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Stops
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route">
+
+              <span class="stop-count">
+
+                <mat-icon>
+                  pin_drop
+                </mat-icon>
+
+                {{ route.stops?.length ?? 0 }}
+
+              </span>
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               ACTIONS
+               =================================================== -->
+
+          <ng-container matColumnDef="actions">
+
+            <th
+              mat-header-cell
+              *matHeaderCellDef>
+
+              Actions
+
+            </th>
+
+            <td
+              mat-cell
+              *matCellDef="let route"
+              class="actions-cell">
+
+
+              <!-- View -->
+
+              <button
+                mat-icon-button
+                type="button"
+                color="primary"
+                matTooltip="View route"
+                (click)="viewRoute(route)">
+
+                <mat-icon>
+                  visibility
+                </mat-icon>
+
+              </button>
+
+
+              <!-- Edit -->
+
+              <button
+                mat-icon-button
+                type="button"
+                color="primary"
+                matTooltip="Edit route"
+                (click)="editRoute(route)">
+
+                <mat-icon>
+                  edit
+                </mat-icon>
+
+              </button>
+
+
+              <!-- Planner -->
+
+              <button
+                mat-icon-button
+                type="button"
+                color="accent"
+                matTooltip="Open route planner"
+                (click)="openPlanner(route)">
+
+                <mat-icon>
+                  map
+                </mat-icon>
+
+              </button>
+
+
+              <!-- Delete -->
+
+              <button
+                mat-icon-button
+                type="button"
+                color="warn"
+                matTooltip="Delete route"
+                (click)="deleteRoute(route)">
+
+                <mat-icon>
+                  delete
+                </mat-icon>
+
+              </button>
+
+            </td>
+
+          </ng-container>
+
+
+          <!-- ==================================================
+               HEADER / ROW
+               =================================================== -->
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns">
+          </tr>
+
+          <tr
+            mat-row
+            *matRowDef="
+              let route;
+              columns: displayedColumns;
+              trackBy: trackByRouteId
+            ">
+          </tr>
+
+        </table>
+
+      </div>
+
+    }
+
+  </mat-card>
+
+</div>

@@ -1,0 +1,354 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+
+      <button
+        mat-button
+        type="button"
+        (click)="cancel()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Back to Delivery
+      </button>
+
+      <h1>Proof of Delivery</h1>
+
+      <p>
+        Delivery #{{ deliveryId }}
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- Loading -->
+
+  <div
+    class="loading-container"
+    *ngIf="loading"
+  >
+    <mat-spinner diameter="45"></mat-spinner>
+
+    <p>Loading delivery information...</p>
+  </div>
+
+
+  <!-- Error -->
+
+  <div
+    class="alert error"
+    *ngIf="errorMessage"
+  >
+    <mat-icon>error</mat-icon>
+
+    <span>{{ errorMessage }}</span>
+  </div>
+
+
+  <div
+    class="content"
+    *ngIf="!loading && delivery"
+  >
+
+    <!-- Delivery summary -->
+
+    <mat-card class="summary-card">
+
+      <div class="summary-header">
+
+        <div>
+          <h2>Delivery Information</h2>
+          <p>
+            Enter the information provided by the receiver.
+          </p>
+        </div>
+
+        <div class="delivery-status">
+          {{ delivery.status }}
+        </div>
+
+      </div>
+
+      <div class="summary-grid">
+
+        <div>
+          <span>Delivery ID</span>
+          <strong>#{{ delivery.id }}</strong>
+        </div>
+
+        <div>
+          <span>Shipment ID</span>
+          <strong>#{{ delivery.shipmentId }}</strong>
+        </div>
+
+        <div>
+          <span>Driver ID</span>
+          <strong>#{{ delivery.driverId }}</strong>
+        </div>
+
+        <div>
+          <span>Vehicle ID</span>
+          <strong>#{{ delivery.vehicleId }}</strong>
+        </div>
+
+        <div>
+          <span>Route ID</span>
+          <strong>#{{ delivery.routeId }}</strong>
+        </div>
+
+      </div>
+
+    </mat-card>
+
+
+    <!-- POD form -->
+
+    <mat-card class="form-card">
+
+      <div class="card-header">
+
+        <div>
+          <h2>Receiver Details</h2>
+
+          <p>
+            Record the person who received the shipment.
+          </p>
+        </div>
+
+      </div>
+
+      <form
+        [formGroup]="podForm"
+        (ngSubmit)="submit()"
+      >
+
+        <div class="form-grid">
+
+          <!-- Receiver Name -->
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+          >
+            <mat-label>Receiver Name</mat-label>
+
+            <input
+              matInput
+              formControlName="receiverName"
+              placeholder="Enter receiver name"
+            />
+
+            <mat-error
+              *ngIf="getControlError('receiverName')"
+            >
+              {{ getControlError('receiverName') }}
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- Receiver Contact -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Receiver Contact</mat-label>
+
+            <input
+              matInput
+              formControlName="receiverContact"
+              placeholder="Phone or contact number"
+            />
+
+            <mat-error
+              *ngIf="getControlError('receiverContact')"
+            >
+              {{ getControlError('receiverContact') }}
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- Signature Path -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Signature Path</mat-label>
+
+            <input
+              matInput
+              formControlName="signaturePath"
+              placeholder="Signature file path or URL"
+            />
+
+            <mat-error
+              *ngIf="getControlError('signaturePath')"
+            >
+              {{ getControlError('signaturePath') }}
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- Photo Path -->
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+          >
+
+            <mat-label>Delivery Photo Path</mat-label>
+
+            <input
+              matInput
+              formControlName="photoPath"
+              placeholder="Photo file path or URL"
+            />
+
+            <mat-error
+              *ngIf="getControlError('photoPath')"
+            >
+              {{ getControlError('photoPath') }}
+            </mat-error>
+
+          </mat-form-field>
+
+
+          <!-- Remarks -->
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+          >
+
+            <mat-label>Remarks</mat-label>
+
+            <textarea
+              matInput
+              formControlName="remarks"
+              rows="5"
+              placeholder="Enter delivery remarks"
+            ></textarea>
+
+            <mat-error
+              *ngIf="getControlError('remarks')"
+            >
+              {{ getControlError('remarks') }}
+            </mat-error>
+
+          </mat-form-field>
+
+        </div>
+
+
+        <!-- Existing POD -->
+
+        <div
+          class="existing-pod"
+          *ngIf="proofOfDelivery"
+        >
+
+          <div class="existing-pod-header">
+
+            <mat-icon>verified</mat-icon>
+
+            <div>
+              <h3>Existing Proof of Delivery</h3>
+
+              <p>
+                POD was previously recorded for this delivery.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="pod-info-grid">
+
+            <div>
+              <span>Receiver</span>
+              <strong>
+                {{ proofOfDelivery.receiverName }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Contact</span>
+              <strong>
+                {{ proofOfDelivery.receiverContact || '-' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Received At</span>
+              <strong>
+                {{ formatDate(proofOfDelivery.receivedAt) }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Remarks</span>
+              <strong>
+                {{ proofOfDelivery.remarks || '-' }}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Buttons -->
+
+        <div class="form-actions">
+
+          <button
+            mat-button
+            type="button"
+            (click)="cancel()"
+            [disabled]="saving"
+          >
+            Cancel
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="clearForm()"
+            [disabled]="saving"
+          >
+            Clear
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="saving"
+          >
+
+            <mat-spinner
+              *ngIf="saving"
+              diameter="20"
+            ></mat-spinner>
+
+            <mat-icon *ngIf="!saving">
+              save
+            </mat-icon>
+
+            <span>
+              {{ saving ? 'Saving...' : 'Save Proof of Delivery' }}
+            </span>
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </mat-card>
+
+  </div>
+
+</div>
